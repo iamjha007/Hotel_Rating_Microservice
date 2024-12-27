@@ -5,6 +5,7 @@ import com.sl.user.service.userService.entity.Hotel;
 import com.sl.user.service.userService.entity.Rating;
 import com.sl.user.service.userService.entity.User;
 import com.sl.user.service.userService.exceptions.NoUserFoundException;
+import com.sl.user.service.userService.external.services.HotelService;
 import com.sl.user.service.userService.services.UserService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -26,6 +27,9 @@ public class UserServiceImpl implements UserService {
 
     @Autowired
     private RestTemplate restTemplate;
+
+    @Autowired
+    private HotelService hotelService;
     @Override
     public User saveUser(User user) {
 
@@ -68,10 +72,13 @@ public class UserServiceImpl implements UserService {
 
         List<Rating> ratingList = user.getRatings().stream().map(rating -> {
 
-            ResponseEntity<Hotel> HotelResponseEntity = restTemplate.getForEntity("http://HOTELSERVICE/hotels/"+rating.getHotelId(), Hotel.class);
+//            ResponseEntity<Hotel> HotelResponseEntity = restTemplate.getForEntity("http://HOTELSERVICE/hotels/"+rating.getHotelId(), Hotel.class);
 
-            Hotel hotel = HotelResponseEntity.getBody();
+//            Hotel hotel = HotelResponseEntity.getBody();
 
+//            we will be using feign client to make the http call insted of rest template
+
+            Hotel hotel = hotelService.getHotel(rating.getHotelId());
             rating.setHotel(hotel);
 
             return rating;
