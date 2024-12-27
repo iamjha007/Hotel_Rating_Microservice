@@ -1,6 +1,7 @@
 package com.sl.user.service.userService.services.impl;
 
 import com.sl.user.service.userService.Repositories.UserRepository;
+import com.sl.user.service.userService.entity.Hotel;
 import com.sl.user.service.userService.entity.Rating;
 import com.sl.user.service.userService.entity.User;
 import com.sl.user.service.userService.exceptions.NoUserFoundException;
@@ -13,6 +14,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 @Slf4j
@@ -48,9 +50,21 @@ public class UserServiceImpl implements UserService {
 
         User user = userRepository.findById(userId).orElseThrow(()->new NoUserFoundException());
 
-        ResponseEntity<Rating[]> ratingList = restTemplate.getForEntity("http://localhost:8083/ratings/users/"+userId, Rating[].class);
-        log.info("{}",ratingList.getBody());
-        user.setRatings(List.of(ratingList.getBody()));
+        ResponseEntity<Rating[]> ratingListOfUser = restTemplate.getForEntity("http://localhost:8083/ratings/users/"+userId, Rating[].class);
+        log.info("{}",ratingListOfUser.getBody());
+        user.setRatings(List.of(ratingListOfUser.getBody()));
+
+        List<Rating> ratingList = user.getRatings().stream().map(rating -> {
+
+            ResponseEntity<Hotel> HotelResponseEntity = restTemplate.getForEntity("http://localhost:8082/hotels/"+rating.getHotelId(), Hotel.class);
+
+            Hotel hotel = HotelResponseEntity.getBody();
+
+            rating.setHotel(hotel);
+
+            return rating;
+
+        }).collect(Collectors.toList());
         return user;
     }
 
