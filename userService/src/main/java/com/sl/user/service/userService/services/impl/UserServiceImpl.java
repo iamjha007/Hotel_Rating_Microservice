@@ -38,9 +38,21 @@ public class UserServiceImpl implements UserService {
         List<User> users = userRepository.findAll();
 
         for(User user : users){
-            ResponseEntity<Rating[]> ratingList = restTemplate.getForEntity("http://localhost:8083/ratings/users/"+user.getId(), Rating[].class);
-            log.info("{}",ratingList.getBody());
-            user.setRatings(List.of(ratingList.getBody()));
+            ResponseEntity<Rating[]> ratingListOfUser = restTemplate.getForEntity("http://RATINGSERVICE/ratings/users/"+user.getId(), Rating[].class);
+            log.info("{}",ratingListOfUser.getBody());
+            user.setRatings(List.of(ratingListOfUser.getBody()));
+
+            List<Rating> ratingList = user.getRatings().stream().map(rating -> {
+
+                ResponseEntity<Hotel> HotelResponseEntity = restTemplate.getForEntity("http://HOTELSERVICE/hotels/"+rating.getHotelId(), Hotel.class);
+
+                Hotel hotel = HotelResponseEntity.getBody();
+
+                rating.setHotel(hotel);
+
+                return rating;
+
+            }).collect(Collectors.toList());
         }
         return users;
     }
@@ -50,13 +62,13 @@ public class UserServiceImpl implements UserService {
 
         User user = userRepository.findById(userId).orElseThrow(()->new NoUserFoundException());
 
-        ResponseEntity<Rating[]> ratingListOfUser = restTemplate.getForEntity("http://localhost:8083/ratings/users/"+userId, Rating[].class);
+        ResponseEntity<Rating[]> ratingListOfUser = restTemplate.getForEntity("http://RATINGSERVICE/ratings/users/"+userId, Rating[].class);
         log.info("{}",ratingListOfUser.getBody());
         user.setRatings(List.of(ratingListOfUser.getBody()));
 
         List<Rating> ratingList = user.getRatings().stream().map(rating -> {
 
-            ResponseEntity<Hotel> HotelResponseEntity = restTemplate.getForEntity("http://localhost:8082/hotels/"+rating.getHotelId(), Hotel.class);
+            ResponseEntity<Hotel> HotelResponseEntity = restTemplate.getForEntity("http://HOTELSERVICE/hotels/"+rating.getHotelId(), Hotel.class);
 
             Hotel hotel = HotelResponseEntity.getBody();
 
