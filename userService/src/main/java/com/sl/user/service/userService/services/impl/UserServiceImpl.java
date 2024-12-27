@@ -6,6 +6,7 @@ import com.sl.user.service.userService.entity.Rating;
 import com.sl.user.service.userService.entity.User;
 import com.sl.user.service.userService.exceptions.NoUserFoundException;
 import com.sl.user.service.userService.external.services.HotelService;
+import com.sl.user.service.userService.external.services.RatingService;
 import com.sl.user.service.userService.services.UserService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -30,6 +31,9 @@ public class UserServiceImpl implements UserService {
 
     @Autowired
     private HotelService hotelService;
+
+    @Autowired
+    private RatingService ratingService;
     @Override
     public User saveUser(User user) {
 
@@ -95,5 +99,11 @@ public class UserServiceImpl implements UserService {
     @Override
     public User deleteUser(String userId) {
         return null;
+    }
+
+    @Override
+    public Rating publishRating(Rating rating) {
+
+        return ratingService.saveRating(rating);
     }
 }

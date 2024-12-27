@@ -1,5 +1,6 @@
 package com.sl.user.service.userService.controller;
 
+import com.sl.user.service.userService.entity.Rating;
 import com.sl.user.service.userService.entity.User;
 import com.sl.user.service.userService.services.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -34,6 +35,12 @@ public class UserController {
     public ResponseEntity<List<User>> getAllUser(){
 
         return ResponseEntity.ok(userService.getAllUser());
+    }
+
+    @PostMapping("/publishrating")
+    public ResponseEntity<Rating> publishRating(@RequestBody Rating rating){
+
+        return ResponseEntity.ok(userService.publishRating(rating));
     }
 
 
