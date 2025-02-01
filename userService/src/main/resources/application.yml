@@ -18,3 +18,72 @@ spring:
         dialect: org.hibernate.dialect.MySQL8Dialect
   config:
     import: configserver:http://localhost:8085
+
+management:
+  health:
+    circuitbreakers:
+      enabled: true
+  endpoints:
+    web:
+      expose: true
+      include: health
+  endpoint:
+    health:
+      show-details: always
+
+
+resilience4j:
+  circuitbreaker:
+    instances:
+      ratingHotelBreaker:
+        registerHealthIndicator: true
+        eventConsumerBufferSize: 10
+        failureRateThreshold: 50
+        minimumNumberOfCalls: 10
+        automaticallyTransitionFromOpenToHalfOpenEnabled: true
+        waitDurationInOpenState: 5s
+        permittedNumberOfCallsInHalfOpenState: 3
+        slidingWindowSize: 10
+        slidingWindowType: COUNT_BASED
+      ratingHotelBreakerAllUser:
+        registerHealthIndicator: true
+        eventConsumerBufferSize: 10
+        failureRateThreshold: 50
+        minimumNumberOfCalls: 11
+        automaticallyTransitionFromOpenToHalfOpenEnabled: true
+        waitDurationInOpenState: 5s
+        permittedNumberOfCallsInHalfOpenState: 3
+        slidingWindowSize: 10
+        slidingWindowType: COUNT_BASED
+  retry:
+    instances:
+      ratingHotelRetry:
+        registerHealthIndicator: true
+        max-attempts: 3
+        wait-duration: 2s
+        retry-exceptions:
+          - feign.FeignException
+          - java.lang.Exception
+      ratingHotelRetryAllUser:
+        registerHealthIndicator: true
+        max-attempts: 3
+        wait-duration: 2s
+        retry-exceptions:
+          - feign.FeignException
+          - java.lang.Exception
+  ratelimiter:
+    instances:
+      ratingHotelLimiter:
+        registerHealthIndicator: true
+        limit-refresh-period: 5s
+        limit-for-period: 2
+        timeout-duration: 0
+      ratingHotelLimiterAllUser:
+        registerHealthIndicator: true
+        limit-refresh-period: 5s
+        limit-for-period: 2
+        timeout-duration: 0
+
+logging:
+  level:
+    io.github.resilience4j.retry: DEBUG

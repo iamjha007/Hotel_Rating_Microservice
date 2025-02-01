@@ -1,10 +1,7 @@
 package com.sl.user.service.userService.entity;
 
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.NoArgsConstructor;
-import lombok.Value;
+import lombok.*;
 import org.springframework.boot.autoconfigure.web.WebProperties;
 
 import java.util.List;
@@ -13,6 +10,7 @@ import java.util.List;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
+@Builder
 public class User {
 
     @Id
